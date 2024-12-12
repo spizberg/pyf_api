@@ -3,30 +3,28 @@ import numpy as np
 from ultralytics import YOLO
 
 from utils import (get_arch_height_in_pixels, get_contours_from_prediction,
-                    get_length_in_pixels, get_mask_from_contours,
-                    get_min_rect_box, get_optimized_foot_box,
-                    get_pixel_per_metric)
+                   get_length_in_pixels, get_mask_from_contours,
+                   get_min_rect_box, get_optimized_foot_box,
+                   get_pixel_per_metric)
 
 MODEL_CONF = 0.1
 A4_PAPER_SIZE = 297
 VERBOSE = False
 
 
-def get_first_step_model(
-        model_path: str = "./weights/first_step_model.pt"
-    ) -> YOLO:
+def get_first_step_model(model_path: str = "./weights/first_step_model.pt") -> YOLO:
     return YOLO(model_path)
 
 
 def get_second_step_pose_model(
-        model_path: str = "./weights/second_step_pose_model.pt"
-    ) -> YOLO:
+    model_path: str = "./weights/second_step_pose_model.pt",
+) -> YOLO:
     return YOLO(model_path)
 
 
 def get_second_step_seg_model(
-        model_path: str = "./weights/second_step_seg_model.pt"
-    ) -> YOLO:
+    model_path: str = "./weights/second_step_seg_model.pt",
+) -> YOLO:
     return YOLO(model_path)
 
 

@@ -1,13 +1,9 @@
-from flask import Flask, request, jsonify
-from model_utils import (
-    get_first_step_model,
-    get_second_step_pose_model,
-    get_second_step_seg_model,
-    predict_foot_length,
-    predict_foot_arch
-)
-from utils import NB_IMAGES, get_images
+from flask import Flask, jsonify, request
 
+from model_utils import (get_first_step_model, get_second_step_pose_model,
+                         get_second_step_seg_model, predict_foot_arch,
+                         predict_foot_length)
+from utils import NB_IMAGES, get_images
 
 app = Flask(__name__)
 
@@ -22,13 +18,13 @@ def hello_world():
     return "<p>Hello on Print Your Feet!</p>"
 
 
-@app.route('/predict', methods=['POST'])
+@app.route("/predict", methods=["POST"])
 def predict():
-    if 'images' not in request.files:
+    if "images" not in request.files:
         return jsonify({"error": "No files part in the request"}), 400
-    
-    files = request.files.getlist('images')
-    
+
+    files = request.files.getlist("images")
+
     if len(files) != NB_IMAGES:
         return jsonify({"error": "Exactly 4 images are required"}), 400
 
@@ -38,13 +34,16 @@ def predict():
         for foot_side, images in organized_images.items():
             foot_length = predict_foot_length(first_step_model, images["top"])
             highest_point, arch_height, ground_line = predict_foot_arch(
-                second_step_pose_model, second_step_seg_model, images["front"], foot_length
+                second_step_pose_model,
+                second_step_seg_model,
+                images["front"],
+                foot_length,
             )
             response[foot_side] = {
                 "arch_highest_point": highest_point.tolist(),
                 "arch_height": arch_height,
                 "foot_length": foot_length,
-                "ground_line": ground_line
+                "ground_line": ground_line,
             }
     except ValueError as exc:
         return jsonify({"error": str(exc)}), 400
@@ -52,5 +51,5 @@ def predict():
     return jsonify(response), 200
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run()

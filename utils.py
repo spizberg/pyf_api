@@ -1,12 +1,12 @@
+import io
+
 import cv2
 import numpy as np
-from scipy.spatial import distance as dist
-from PIL import Image
-import io
-from werkzeug.utils import secure_filename
-from sympy import Point, Line
 from imutils import perspective
-
+from PIL import Image
+from scipy.spatial import distance as dist
+from sympy import Line, Point
+from werkzeug.utils import secure_filename
 
 NB_IMAGES = 4
 
@@ -37,12 +37,12 @@ def organize_input_images(names_to_imgs: dict) -> dict:
     return {
         "left_foot": {
             "top": names_to_imgs["top_left"],
-            "front": names_to_imgs["front_left"]
+            "front": names_to_imgs["front_left"],
         },
         "right_foot": {
             "top": names_to_imgs["top_right"],
-            "front": names_to_imgs["front_right"]
-        }
+            "front": names_to_imgs["front_right"],
+        },
     }
 
 
@@ -69,7 +69,7 @@ def get_images(files) -> dict[str, np.ndarray]:
     if len(names_to_imgs) != NB_IMAGES:
         nb_missings = NB_IMAGES - len(names_to_imgs)
         raise ValueError(f"{nb_missings} image(s) is/are missing.")
-    
+
     organized_input_images = organize_input_images(names_to_imgs)
 
     return organized_input_images
