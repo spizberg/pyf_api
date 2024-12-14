@@ -11,4 +11,4 @@ RUN  apt-get update \
   && rm -rf /var/lib/apt/lists/*
 COPY . .
 RUN pip install -r requirements.txt && chmod +x run_app.sh
-CMD ./run_app.sh
+CMD ["./run_app.sh"]

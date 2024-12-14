@@ -1,11 +1,14 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 from model_utils import (get_first_step_model, get_second_step_pose_model,
                          get_second_step_seg_model, predict_foot_arch,
                          predict_foot_length)
 from utils import NB_IMAGES, get_images
 
+
 app = Flask(__name__)
+CORS(app)
 
 
 first_step_model = get_first_step_model()
