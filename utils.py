@@ -30,6 +30,7 @@ def is_filename_expected(filename: str) -> bool:
 
 def convert_bytes_to_image(image_bytes):
     pil_image = Image.open(io.BytesIO(image_bytes))
+    pil_image = pil_image.convert('RGB')
     return np.array(pil_image)[:, :, ::-1]
 
 

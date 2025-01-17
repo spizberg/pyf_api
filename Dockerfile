@@ -25,7 +25,7 @@ COPY --from=builder /app/weights /app/weights
 COPY . .
 RUN apt-get update && apt-get install ffmpeg -y \
   && rm -rf /var/lib/apt/lists/* \
-  && pip install --no-cache-dir -r requirements.txt \
+  && pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu ultralytics \
   && chmod +x run_app.sh
 
 # Expose the application port

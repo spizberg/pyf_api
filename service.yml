@@ -1,0 +1,12 @@
+[Unit]
+Description=Flask App Container Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker run --rm -p 80:5000 --name flask-app 272609267261.dkr.ecr.eu-west-3.amazonaws.com/pyf_gunicorn:latest
+ExecStop=/usr/bin/docker stop flask-app
+
+[Install]
+WantedBy=multi-user.target
