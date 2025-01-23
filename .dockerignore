@@ -10,3 +10,5 @@ weights/
 .python-version
 
 run_container.sh
+
+nginx.conf

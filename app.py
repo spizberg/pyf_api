@@ -16,12 +16,12 @@ second_step_pose_model = get_second_step_pose_model()
 second_step_seg_model = get_second_step_seg_model()
 
 
-@app.route("/")
+@app.route("/api")
 def hello_world():
     return "<p>Hello on Print Your Feet!</p>"
 
 
-@app.route("/predict", methods=["POST"])
+@app.route("/api/compute_feet_measurements", methods=["POST"])
 def predict():
     if "images" not in request.files:
         return jsonify({"error": "No files part in the request"}), 400
@@ -54,7 +54,7 @@ def predict():
     return jsonify(response), 200
 
 
-@app.route("/predict_bubble", methods=["POST"])
+@app.route("/api/compute_feet_measurements_bubble", methods=["POST"])
 def predict_bubble():
     files = [request.files.get(file_key) for file_key in MAP_SRC_NAME_TO_DEST_NAME.keys()]
 
