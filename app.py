@@ -15,26 +15,35 @@ first_step_model = get_first_step_model()
 second_step_pose_model = get_second_step_pose_model()
 second_step_seg_model = get_second_step_seg_model()
 
+BAD_REQUEST = 400
 
+
+@app.route("/")
 @app.route("/api")
 def hello_world():
     return "<p>Hello on Print Your Feet!</p>"
 
 
+@app.route("/compute_feet_measurements", methods=["POST"])
 @app.route("/api/compute_feet_measurements", methods=["POST"])
 def predict():
     if "images" not in request.files:
-        return jsonify({"error": "No files part in the request"}), 400
+        return jsonify({"error": "No files part in the request"}), BAD_REQUEST
 
     files = request.files.getlist("images")
 
     if len(files) != NB_IMAGES:
-        return jsonify({"error": "Exactly 4 images are required"}), 400
+        return jsonify({"error": "Exactly 4 images are required"}), BAD_REQUEST
 
-    response = {}
+    organized_images = {}
     try:
         organized_images = get_images(files)
-        for foot_side, images in organized_images.items():
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), BAD_REQUEST
+
+    response = {}
+    for foot_side, images in organized_images.items():
+        try:
             foot_length = predict_foot_length(first_step_model, images["top"])
             highest_point, arch_height, ground_line = predict_foot_arch(
                 second_step_pose_model,
@@ -48,23 +57,31 @@ def predict():
                 "foot_length": foot_length,
                 "ground_line": ground_line,
             }
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
+        except ValueError as exc:
+            response[foot_side] = {
+                "error": str(exc)
+            }
 
     return jsonify(response), 200
 
 
+@app.route("/compute_feet_measurements_bubble", methods=["POST"])
 @app.route("/api/compute_feet_measurements_bubble", methods=["POST"])
 def predict_bubble():
     files = [request.files.get(file_key) for file_key in MAP_SRC_NAME_TO_DEST_NAME.keys()]
 
     if None in files or len(files) != NB_IMAGES:
-        return jsonify({"error": "Exactly 4 images are required"}), 400
+        return jsonify({"error": "Exactly 4 images are required"}), BAD_REQUEST
 
-    response = {}
+    organized_images = {}
     try:
         organized_images = get_images(files)
-        for foot_side, images in organized_images.items():
+    except ValueError as exc:
+        return jsonify({"error": str(exc)}), BAD_REQUEST
+
+    response = {}
+    for foot_side, images in organized_images.items():
+        try:
             foot_length = predict_foot_length(first_step_model, images["top"])
             highest_point, arch_height, ground_line = predict_foot_arch(
                 second_step_pose_model,
@@ -78,7 +95,9 @@ def predict_bubble():
                 "foot_length": foot_length,
                 "ground_line": ground_line,
             }
-    except ValueError as exc:
-        return jsonify({"error": str(exc)}), 400
+        except ValueError as exc:
+            response[foot_side] = {
+                "error": str(exc)
+            }
 
     return jsonify(response), 200

@@ -34,6 +34,9 @@ def predict_foot_length(
     """Get foot real length from YOLO prediction."""
     prediction = first_step_model(img, max_det=2, conf=MODEL_CONF, verbose=VERBOSE)[0]
 
+    if len(prediction.masks.xy) != 2:
+        raise ValueError("A4 paper or foot is not well visible from the top.")
+
     temp_foot_contour, paper_contour = get_contours_from_prediction(prediction)
     paper_box = get_min_rect_box(paper_contour)
     img_shape = prediction.orig_img.shape[:2]
@@ -66,7 +69,7 @@ def get_arch_highest_point(second_step_pose_model: YOLO, img: np.ndarray) -> np.
     arch_point = result.keypoints.xy.cpu().detach().squeeze().numpy()
 
     if len(arch_point) != 2:
-        raise ValueError("Arch has not been found on image.")
+        raise ValueError("Arch has not been found from the front.")
 
     return arch_point
 
@@ -78,7 +81,7 @@ def get_foot_contour(second_step_seg_model: YOLO, img: np.ndarray) -> np.ndarray
     prediction = result.masks.xy
 
     if len(prediction) != 1:
-        raise ValueError("Foot is not well visible on image.")
+        raise ValueError("Foot is not well visible from the front.")
 
     # save foot contour
     foot_contour = prediction[0]

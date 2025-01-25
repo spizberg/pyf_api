@@ -153,8 +153,13 @@ def get_contours_from_prediction(model_prediction) -> tuple[np.ndarray, np.ndarr
             foot_result = seg
         elif prediction["class"] == 1:
             paper_result = seg
-    if foot_result is None or paper_result is None:
-        raise ValueError("The A4 paper or the foot is not well visible.")
+
+    if foot_result is None and paper_result is None:
+        raise ValueError("The A4 paper and the foot are not well visible from the top.")
+    elif foot_result is None:
+        raise ValueError("The foot is not well visible from the top.")
+    elif paper_result is None:
+        raise ValueError("The A4 paper is not well visible from the top.")
     return foot_result, paper_result
 
 
