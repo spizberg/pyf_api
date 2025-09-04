@@ -1,0 +1,12 @@
+[Unit]
+Description=Foot Measurements Container Service
+After=docker.service
+Requires=docker.service
+
+[Service]
+Restart=always
+ExecStart=/usr/bin/docker run --rm -p 5000:5000 --name api 272609267261.dkr.ecr.eu-west-3.amazonaws.com/pyf_api:latest
+ExecStop=/usr/bin/docker stop api
+
+[Install]
+WantedBy=multi-user.target
