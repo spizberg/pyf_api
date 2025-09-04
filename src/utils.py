@@ -6,18 +6,11 @@ from imutils import perspective
 from PIL import Image
 from scipy.spatial import distance as dist
 from sympy import Line, Point
-from werkzeug.utils import secure_filename
+from fastapi import UploadFile
 
 NB_IMAGES = 4
 
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif"}
-
-MAP_SRC_NAME_TO_DEST_NAME = {
-    "left_top": "top_left",
-    "right_top": "top_right",
-    "left_front": "front_left",
-    "right_front": "front_right",
-}
 
 
 def allowed_file(filename):
@@ -25,7 +18,7 @@ def allowed_file(filename):
 
 
 def is_filename_expected(filename: str) -> bool:
-    return filename in MAP_SRC_NAME_TO_DEST_NAME.keys()
+    return filename in ["left_top", "right_top", "left_front", "right_front"]
 
 
 def convert_bytes_to_image(image_bytes):
@@ -37,34 +30,34 @@ def convert_bytes_to_image(image_bytes):
 def organize_input_images(names_to_imgs: dict) -> dict:
     return {
         "left_foot": {
-            "top": names_to_imgs["top_left"],
-            "front": names_to_imgs["front_left"],
+            "top": names_to_imgs["left_top"],
+            "front": names_to_imgs["left_front"],
         },
         "right_foot": {
-            "top": names_to_imgs["top_right"],
-            "front": names_to_imgs["front_right"],
+            "top": names_to_imgs["right_top"],
+            "front": names_to_imgs["right_front"],
         },
     }
 
 
-def get_allowed_image(file) -> np.ndarray:
+async def get_allowed_image(file) -> np.ndarray:
     if not (file and allowed_file(file.filename)):
         raise ValueError("Image format not allowed.")
 
-    filename = secure_filename(file.filename)
-    filename_without_ext = filename.split(".")[0].lower()
+    filename_without_ext = file.filename.split(".")[0].lower()
 
     if not is_filename_expected(filename_without_ext):
         raise ValueError("The image's name is not recognized.")
 
-    np_img = convert_bytes_to_image(file.read())
-    return {MAP_SRC_NAME_TO_DEST_NAME[filename_without_ext]: np_img}
+    file_content = await file.read()
+    np_img = convert_bytes_to_image(file_content)
+    return {filename_without_ext: np_img}
 
 
-def get_images(files) -> dict[str, np.ndarray]:
+async def get_images(files: list[UploadFile]) -> dict[str, np.ndarray]:
     names_to_imgs = {}
     for file in files:
-        name_to_img = get_allowed_image(file)
+        name_to_img = await get_allowed_image(file)
         names_to_imgs.update(name_to_img)
 
     if len(names_to_imgs) != NB_IMAGES:
@@ -168,3 +161,7 @@ def get_arch_height_in_pixels(point: np.ndarray, bbox: np.ndarray) -> float:
     point_bl, point_br = Point(bbox[3]), Point(bbox[2])
     bottom_line = Line(point_bl, point_br)
     return float(bottom_line.perpendicular_segment(highest_point).length.evalf())
+
+
+def convert_numpy_point_to_dict(array: np.ndarray) -> dict:
+    return {"x": array[0], "y": array[1]}

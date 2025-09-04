@@ -1,0 +1,21 @@
+[project]
+name = "pyf-api"
+version = "0.1.0"
+description = "PrintYourFeet API"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.6",
+    "imutils>=0.5.4",
+    "numpy>=1.26.4",
+    "opencv-python-headless>=4.10.0.84",
+    "pillow>=11.0.0",
+    "scipy>=1.14.1",
+    "simpy>=4.1.1",
+    "ultralytics==8.3.48",
+]
+
+[tool.uv]
+environments = [
+    "sys_platform == 'linux'",
+]

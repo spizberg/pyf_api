@@ -1,15 +1,22 @@
+"""Module containing utilities functions for ML models."""
+
+from contextlib import asynccontextmanager
+
 import cv2
+from fastapi import FastAPI
 import numpy as np
 from ultralytics import YOLO
 
-from utils import (get_arch_height_in_pixels, get_contours_from_prediction,
+from .utils import (get_arch_height_in_pixels, get_contours_from_prediction,
                    get_length_in_pixels, get_mask_from_contours,
                    get_min_rect_box, get_optimized_foot_box,
                    get_pixel_per_metric)
 
+
 MODEL_CONF = 0.1
 A4_PAPER_SIZE = 297
 VERBOSE = False
+models = {}
 
 
 def get_first_step_model(model_path: str = "./weights/first_step_model.pt") -> YOLO:
@@ -116,3 +123,17 @@ def predict_foot_arch(
     arch_height = height_in_pixels / pixel_per_metric
 
     return highest_point, arch_height, [bbox[3].tolist(), bbox[2].tolist()]
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Load the ML models
+    models["first_step_model"] = get_first_step_model()
+    models["second_step_pose_model"] = get_second_step_pose_model()
+    models["second_step_seg_model"] = get_second_step_seg_model()
+
+    yield
+
+    del models["first_step_model"]
+    del models["second_step_pose_model"]
+    del models["second_step_seg_model"]

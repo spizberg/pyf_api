@@ -14,7 +14,7 @@ RUN  apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 # Stage 2: Runtime
-FROM python:3.12-slim
+FROM python:3.13-slim
 
 # Set up a working directory
 WORKDIR /app
@@ -23,13 +23,14 @@ COPY --from=builder /app/weights /app/weights
 
 # Copy app, install dependencies and make script executable
 COPY . .
+ENV UV_PROJECT_ENVIRONMENT="/usr/local"
 RUN apt-get update && apt-get install ffmpeg -y \
   && rm -rf /var/lib/apt/lists/* \
-  && pip install --no-cache-dir -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu ultralytics \
-  && chmod +x run_app.sh
+  && pip install --no-cache-dir uv \
+  && uv sync --index https://download.pytorch.org/whl/cpu
 
 # Expose the application port
 EXPOSE 5000
 
 # Command to run the Flask app
-CMD ./run_app.sh
+CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "5000"]
