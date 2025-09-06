@@ -2,19 +2,29 @@
 
 from typing import Annotated
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, status
+from fastapi import APIRouter, File, HTTPException, UploadFile, status
 
-from ..model_utils import predict_foot_arch, predict_foot_length, models
+from ..model_utils import models, predict_foot_arch, predict_foot_length
 from ..utils import NB_IMAGES, get_images
 
 v1_router = APIRouter(tags=["v1"])
 
 
 @v1_router.post("/compute_feet_measurements")
-@v1_router.post("/api/compute_feet_measurements")
-async def predict(images: Annotated[list[UploadFile], File(...)]):
+async def predict(
+    images: Annotated[
+        list[UploadFile],
+        File(
+            ...,
+            description="List of 4 images named: left_top, right_top, left_front and right_front",
+        ),
+    ],
+):
     if not images or len(images) != NB_IMAGES:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Exactly 4 images are required")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Exactly 4 images are required",
+        )
 
     try:
         organized_images = await get_images(images)

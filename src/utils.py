@@ -2,11 +2,11 @@ import io
 
 import cv2
 import numpy as np
+from fastapi import UploadFile
 from imutils import perspective
 from PIL import Image
 from scipy.spatial import distance as dist
 from sympy import Line, Point
-from fastapi import UploadFile
 
 NB_IMAGES = 4
 
@@ -23,7 +23,7 @@ def is_filename_expected(filename: str) -> bool:
 
 def convert_bytes_to_image(image_bytes):
     pil_image = Image.open(io.BytesIO(image_bytes))
-    pil_image = pil_image.convert('RGB')
+    pil_image = pil_image.convert("RGB")
     return np.array(pil_image)[:, :, ::-1]
 
 

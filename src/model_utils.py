@@ -3,15 +3,14 @@
 from contextlib import asynccontextmanager
 
 import cv2
-from fastapi import FastAPI
 import numpy as np
+from fastapi import FastAPI
 from ultralytics import YOLO
 
 from .utils import (get_arch_height_in_pixels, get_contours_from_prediction,
-                   get_length_in_pixels, get_mask_from_contours,
-                   get_min_rect_box, get_optimized_foot_box,
-                   get_pixel_per_metric)
-
+                    get_length_in_pixels, get_mask_from_contours,
+                    get_min_rect_box, get_optimized_foot_box,
+                    get_pixel_per_metric)
 
 MODEL_CONF = 0.1
 A4_PAPER_SIZE = 297
